@@ -41,9 +41,11 @@
     "next": "13.5.4",
     "openai": "^4.11.1",
     "pdf-parse": "^1.1.1",
+    "pinecone-client": "^1.1.2",
     "react": "^18",
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
+    "react-feather": "^2.0.10",
     "react-hook-form": "^7.47.0",
     "react-loading-skeleton": "^3.3.1",
     "react-markdown": "^9.0.0",
@@ -78,15 +80,15 @@
   "main": "next.config.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/anand-mukul/pdfninja.git"
+    "url": "git+https://github.com/anand-mukul/PDFNinja.git"
   },
   "keywords": [
     "pdf"
   ],
   "author": "Mukul",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/anand-mukul/pdfninja/issues"
+    "url": "https://github.com/anand-mukul/PDFNinja/issues"
   },
-  "homepage": "https://github.com/anand-mukul/pdfninja#readme"
+  "homepage": "https://github.com/anand-mukul/PDFNinja#readme"
 }

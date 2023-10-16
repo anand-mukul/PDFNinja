@@ -2,7 +2,7 @@
 
 import { trpc } from "@/app/_trpc/client";
 import UploadButton from "./UploadButton";
-import { Ghost, Loader2, MessageSquare, Plus, Trash } from "lucide-react";
+import { Ghost, Loader2, Plus, Trash, Clock} from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -20,9 +20,9 @@ const Dashboard = ({ subscriptionPlan }: PageProps) => {
   >(null);
 
   const utils = trpc.useContext();
-
+  
   const { data: files, isLoading } = trpc.getUserFiles.useQuery();
-
+  
   const { mutate: deleteFile } = trpc.deleteFile.useMutation({
     onSuccess: () => {
       utils.getUserFiles.invalidate();
@@ -76,12 +76,12 @@ const Dashboard = ({ subscriptionPlan }: PageProps) => {
                 <div className="px-6 mt-4 grid grid-cols-3 place-items-center py-2 gap-6 text-xs text-zinc-500">
                   <div className="flex items-center gap-2">
                     <Plus className="h-4 w-4" />
-                    {format(new Date(file.createdAt), "MMM yyyy")}
+                    {format(new Date(file.createdAt), "dd MMM yyyy")}
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    mocked
+                    <Clock className="h-4 w-4" />
+                    {format(new Date(file.createdAt), "HH:MM")}
                   </div>
 
                   <Button
