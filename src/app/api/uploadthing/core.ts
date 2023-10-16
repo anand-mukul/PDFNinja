@@ -53,7 +53,7 @@ const onUploadComplete = async ({
     const blob = await response.blob();
     const loader = new PDFLoader(blob);
     const pageLevelDocs = await loader.load();
-    const numberOfPages = pageLevelDocs.length;
+    const pagesAmt = pageLevelDocs.length;
 
     const { subscriptionPlan } = metadata;
     const { isSubscribed } = subscriptionPlan;
@@ -61,7 +61,7 @@ const onUploadComplete = async ({
       ? PLANS.find((plan) => plan.name === 'Pro')!.pagesPerPdf
       : PLANS.find((plan) => plan.name === 'Free')!.pagesPerPdf;
 
-    if (numberOfPages > allowedPages) {
+    if (pagesAmt > allowedPages) {
       await db.file.update({
         data: {
           uploadStatus: 'FAILED',

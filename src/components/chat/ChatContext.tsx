@@ -3,6 +3,7 @@ import { useToast } from "../ui/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { trpc } from "@/app/_trpc/client";
 import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
+import { v4 as uuidv4 } from "uuid";
 
 type StreamResponse = {
   addMessage: () => void;
@@ -26,7 +27,7 @@ interface Props {
 export const ChatContextProvider = ({ fileId, children }: Props) => {
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  
   const utils = trpc.useContext();
 
   const { toast } = useToast();
@@ -77,7 +78,7 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
           latestPage.messages = [
             {
               createdAt: new Date().toISOString(),
-              id: crypto.randomUUID(),
+              id: uuidv4(),
               text: message,
               isUserMessage: true,
             },
