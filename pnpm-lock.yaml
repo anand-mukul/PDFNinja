@@ -707,7 +707,7 @@ packages:
       '@kinde-oss/kinde-typescript-sdk': 2.2.1
       cookie: 0.5.0
       crypto: 1.0.1
-      crypto-js: 4.1.1
+      crypto-js: 4.2.0
       jwt-decode: 3.1.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -2888,8 +2888,8 @@ packages:
     resolution: {integrity: sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==}
     dev: false
 
-  /crypto-js@4.1.1:
-    resolution: {integrity: sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==}
+  /crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
     dev: false
 
   /crypto2@2.0.0:
