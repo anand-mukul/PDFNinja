@@ -1,8 +1,8 @@
 # PDF Ninja: Elevating Document Transformation 🚀
 
-Welcome to **[PDF Ninja](https://pdf-ninja-new.vercel.app)** – the nexus where documents undergo a transformative journey, seamlessly blending innovation with enhanced productivity. Immerse yourself in the digital landscape with our cutting-edge PDF tools, meticulously crafted to elevate your documents and streamline your workflows. Whether it's swift scanning, fluid conversions, or collaborative innovations, PDFNinja transforms static files into dynamic assets, setting unprecedented benchmarks for efficiency and creativity. Discover the epitome of document management – intuitively designed, exceptionally efficient, and incredibly empowering. Master your documents, redefine your work – with PDFNinja.
+Welcome to **[PDF Ninja](https://pdfninja-new.vercel.app)** – the nexus where documents undergo a transformative journey, seamlessly blending innovation with enhanced productivity. Immerse yourself in the digital landscape with our cutting-edge PDF tools, meticulously crafted to elevate your documents and streamline your workflows. Whether it's swift scanning, fluid conversions, or collaborative innovations, PDFNinja transforms static files into dynamic assets, setting unprecedented benchmarks for efficiency and creativity. Discover the epitome of document management – intuitively designed, exceptionally efficient, and incredibly empowering. Master your documents, redefine your work – with PDFNinja.
 
-## 🌟 Demo: [PDF Ninja](https://pdf-ninja-new.vercel.app) (Experience it by running on `localhost:3000`)
+## 🌟 Demo: [PDF Ninja](https://pdfninja-new.vercel.app) (Experience it by running on `localhost:3000`)
 
 ## Crafted with Precision: Next.js 13.5, tRPC, TypeScript, Prisma & Tailwind 💻
 
