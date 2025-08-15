@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSX } from "react";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
@@ -11,7 +11,7 @@ interface PageProps {
   };
 }
 
-const Page = async ({ params }: PageProps) => {
+const Page = async ({ params }: PageProps): Promise<JSX.Element> => {
   const { fileid } = params;
 
   const { getUser } = getKindeServerSession();
