@@ -1,18 +1,12 @@
-import React, { JSX } from "react";
+import React from "react";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import PdfRenderer from "@/components/PdfRenderer";
 import ChatWrapper from "@/components/chat/ChatWrapper";
 
-interface PageProps {
-  params: {
-    fileid: string;
-  };
-}
-
-const Page = async ({ params }: PageProps): Promise<JSX.Element> => {
-  const { fileid } = params;
+const Page = async ({ params }: { params: Promise<{ fileid: string }> }) => {
+  const { fileid } = await params;
 
   const { getUser } = getKindeServerSession();
   const user = await getUser();
