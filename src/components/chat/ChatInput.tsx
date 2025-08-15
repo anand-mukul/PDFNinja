@@ -1,13 +1,14 @@
-import { Send } from "lucide-react";
-import { Button } from "../ui/button";
-import { ChatContext } from "./ChatContext";
+import React, { useContext, useRef } from "react";
 import { Textarea } from "../ui/textarea";
-import { FC, useContext, useRef } from "react";
+import { Button } from "../ui/button";
+import { Send } from "lucide-react";
+import { ChatContext } from "./ChatContext";
+
 interface ChatInputProps {
   isDisabled?: boolean;
 }
 
-const ChatInput: FC<ChatInputProps> = ({ isDisabled }: ChatInputProps) => {
+const ChatInput = ({ isDisabled }: ChatInputProps) => {
   const { addMessage, handleInputChange, isLoading, message } =
     useContext(ChatContext);
 

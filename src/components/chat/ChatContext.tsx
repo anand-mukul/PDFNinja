@@ -1,9 +1,8 @@
-import { ReactNode, createContext, useRef, useState } from "react";
-import { useToast } from "../ui/use-toast";
-import { useMutation } from "@tanstack/react-query";
 import { trpc } from "@/app/_trpc/client";
 import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
-import { v4 as uuidv4 } from "uuid";
+import { useMutation } from "@tanstack/react-query";
+import React, { createContext, ReactNode, useRef, useState } from "react";
+import { toast } from "sonner";
 
 type StreamResponse = {
   addMessage: () => void;
@@ -25,72 +24,87 @@ interface Props {
 }
 
 export const ChatContextProvider = ({ fileId, children }: Props) => {
-  const [message, setMessage] = useState<string>("");
+  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  
-  const utils = trpc.useContext();
 
-  const { toast } = useToast();
+  const utils = trpc.useUtils();
+  const backupMessage = useRef<string>("");
+  const currentAbort = useRef<AbortController | null>(null);
 
-  const backupMessage = useRef("");
-
-  const { mutate: sendMessage } = useMutation({
+  const { mutate: sendMessage } = useMutation<
+    ReadableStream<Uint8Array> | null,
+    Error,
+    { message: string },
+    {
+      previousMessages: Array<{
+        createdAt: string;
+        id: string;
+        text: string;
+        isUserMessage: boolean;
+      }>;
+    }
+  >({
     mutationFn: async ({ message }: { message: string }) => {
-      const response = await fetch("/api/message", {
-        method: "POST",
-        body: JSON.stringify({
-          fileId,
-          message,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send message");
+      if (currentAbort.current) {
+        try {
+          currentAbort.current.abort();
+        } catch {
+          /* ignore */
+        }
       }
 
-      return response.body;
+      const ac = new AbortController();
+      currentAbort.current = ac;
+
+      const res = await fetch("/api/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileId, message }),
+        signal: ac.signal,
+      });
+
+      if (!res.ok) {
+        let text = "Failed to send message";
+        try {
+          text = await res.text();
+        } catch {
+          /* ignore */
+        }
+        throw new Error(text || "Failed to send message");
+      }
+
+      return res.body;
     },
+
     onMutate: async ({ message }) => {
       backupMessage.current = message;
       setMessage("");
 
-      // step 1
       await utils.getFileMessages.cancel();
-
-      // step 2
       const previousMessages = utils.getFileMessages.getInfiniteData();
 
-      // step 3
       utils.getFileMessages.setInfiniteData(
         { fileId, limit: INFINITE_QUERY_LIMIT },
         (old) => {
           if (!old) {
-            return {
-              pages: [],
-              pageParams: [],
-            };
+            return { pages: [], pageParams: [] };
           }
 
-          let newPages = [...old.pages];
+          const newPages = [...old.pages];
+          const latest = newPages[0]!;
 
-          let latestPage = newPages[0]!;
-
-          latestPage.messages = [
+          latest.messages = [
             {
               createdAt: new Date().toISOString(),
-              id: uuidv4(),
+              id: crypto.randomUUID(),
               text: message,
               isUserMessage: true,
             },
-            ...latestPage.messages,
+            ...latest.messages,
           ];
 
-          newPages[0] = latestPage;
-
-          return {
-            ...old,
-            pages: newPages,
-          };
+          newPages[0] = latest;
+          return { ...old, pages: newPages };
         }
       );
 
@@ -101,92 +115,123 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
           previousMessages?.pages.flatMap((page) => page.messages) ?? [],
       };
     },
-    onSuccess: async (stream) => {
-      setIsLoading(false);
 
+    onSuccess: async (stream) => {
       if (!stream) {
-        return toast({
-          title: "There was a problem sending this message",
-          description: "Please refresh this page and try again",
-          variant: "destructive",
-        });
+        setIsLoading(false);
+        toast.error("Something went wrong. Please try again.");
+        return;
       }
 
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let done = false;
-
-      // accumulated response
       let accResponse = "";
 
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        const chunkValue = decoder.decode(value);
+      try {
+        while (!done) {
+          const { value, done: doneReading } = await reader.read();
+          done = doneReading;
 
-        accResponse += chunkValue;
+          if (value) {
+            accResponse += decoder.decode(value, { stream: true });
+          }
 
-        // append chunk to the actual message
+          utils.getFileMessages.setInfiniteData(
+            { fileId, limit: INFINITE_QUERY_LIMIT },
+            (old) => {
+              if (!old) return { pages: [], pageParams: [] };
+
+              const isAiResponseCreated = old.pages.some((page) =>
+                page.messages.some((m) => m.id === "ai-response")
+              );
+
+              const updatedPages = old.pages.map((page, idx) => {
+                if (idx === 0) {
+                  let updatedMessages;
+                  if (!isAiResponseCreated) {
+                    updatedMessages = [
+                      {
+                        createdAt: new Date().toISOString(),
+                        id: "ai-response",
+                        text: accResponse,
+                        isUserMessage: false,
+                      },
+                      ...page.messages,
+                    ];
+                  } else {
+                    updatedMessages = page.messages.map((m) =>
+                      m.id === "ai-response" ? { ...m, text: accResponse } : m
+                    );
+                  }
+                  return { ...page, messages: updatedMessages };
+                }
+                return page;
+              });
+
+              return { ...old, pages: updatedPages };
+            }
+          );
+        }
+
+        const finalChunk = decoder.decode();
+        if (finalChunk) accResponse += finalChunk;
+
         utils.getFileMessages.setInfiniteData(
           { fileId, limit: INFINITE_QUERY_LIMIT },
           (old) => {
             if (!old) return { pages: [], pageParams: [] };
 
-            let isAiResponseCreated = old.pages.some((page) =>
-              page.messages.some((message) => message.id === "ai-response")
-            );
-
-            let updatedPages = old.pages.map((page) => {
-              if (page === old.pages[0]) {
-                let updatedMessages;
-
-                if (!isAiResponseCreated) {
-                  updatedMessages = [
-                    {
-                      createdAt: new Date().toISOString(),
-                      id: "ai-response",
-                      text: accResponse,
-                      isUserMessage: false,
-                    },
-                    ...page.messages,
-                  ];
-                } else {
-                  updatedMessages = page.messages.map((message) => {
-                    if (message.id === "ai-response") {
-                      return {
-                        ...message,
-                        text: accResponse,
-                      };
-                    }
-                    return message;
-                  });
-                }
-
-                return {
-                  ...page,
-                  messages: updatedMessages,
-                };
+            const updatedPages = old.pages.map((page, idx) => {
+              if (idx === 0) {
+                const updatedMessages = page.messages.map((m) =>
+                  m.id === "ai-response" ? { ...m, text: accResponse } : m
+                );
+                return { ...page, messages: updatedMessages };
               }
-
               return page;
             });
 
             return { ...old, pages: updatedPages };
           }
         );
+      } catch (readErr) {
+        const e =
+          readErr instanceof Error ? readErr : new Error(String(readErr));
+        console.error("Error while reading stream:", e);
+        toast.error("Connection interrupted. Please try again.");
+        setMessage(backupMessage.current);
+      } finally {
+        setIsLoading(false);
+        currentAbort.current = null;
+
+        try {
+          await utils.getFileMessages.invalidate({ fileId });
+        } catch (invErr) {
+          console.error("Failed to invalidate messages after stream:", invErr);
+        }
       }
     },
 
     onError: (_, __, context) => {
       setMessage(backupMessage.current);
-      utils.getFileMessages.setData(
-        { fileId },
-        { messages: context?.previousMessages ?? [] }
-      );
-    },
-    onSettled: async () => {
       setIsLoading(false);
 
+      try {
+        if (context?.previousMessages) {
+          utils.getFileMessages.setData(
+            { fileId },
+            { messages: context.previousMessages }
+          );
+        }
+      } catch {
+        /* ignore */
+      }
+
+      toast.error("Failed to send message. Please try again.");
+    },
+
+    onSettled: async () => {
       await utils.getFileMessages.invalidate({ fileId });
     },
   });
