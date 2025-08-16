@@ -66,7 +66,7 @@ const Footer = () => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <Bug className="w-4 h-4" />
+                    <Bug className="w-4 h-4 cursor-pointer" />
                   </TooltipTrigger>
                   <TooltipContent className="mb-4 flex bg-gray-200 dark:bg-gray-950 text-black dark:text-white font-semibold rounded-full">
                     <p className="m-1">Report Issue</p>

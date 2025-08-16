@@ -12,7 +12,10 @@ const UpgradeButton = () => {
   });
 
   return (
-    <Button onClick={() => createStripeSession()} className="w-full">
+    <Button
+      onClick={() => createStripeSession()}
+      className="w-full cursor-pointer"
+    >
       Upgrade now <ArrowRight className="h-5 w-5 ml-1.5" />
     </Button>
   );

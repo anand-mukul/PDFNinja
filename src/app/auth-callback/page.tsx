@@ -1,4 +1,3 @@
-// app/auth-callback/page.tsx
 import React, { Suspense } from "react";
 import AuthCallbackClient from "./AuthCallbackClient";
 

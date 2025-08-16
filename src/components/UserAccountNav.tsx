@@ -39,7 +39,7 @@ const UserAccountNav = async ({
           className="relative h-8 w-8 rounded-full p-0 hover:bg-accent/80"
           aria-label="User account menu"
         >
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 cursor-pointer">
             {imageUrl ? (
               <div className="relative aspect-square h-full w-full">
                 <Image
@@ -51,7 +51,7 @@ const UserAccountNav = async ({
                 />
               </div>
             ) : (
-              <AvatarFallback className="bg-gradient-to-r from-cyan-500 to-violet-500">
+              <AvatarFallback className="bg-gradient-to-r from-cyan-900 to-violet-700">
                 <span className="sr-only">{name}</span>
                 <Icons.user className="h-4 w-4 text-white" />
               </AvatarFallback>

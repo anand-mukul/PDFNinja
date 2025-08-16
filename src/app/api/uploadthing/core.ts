@@ -31,7 +31,7 @@ const onUploadComplete = async ({
   file: {
     key: string;
     name: string;
-    url: string;
+    ufsUrl: string;
   };
 }) => {
   const isFileExist = await db.file.findFirst({
@@ -46,13 +46,13 @@ const onUploadComplete = async ({
       key: file.key,
       name: file.name,
       userId: metadata.userId,
-      url: file.url,
+      url: file.ufsUrl,
       uploadStatus: "PROCESSING",
     },
   });
 
   try {
-    const response = await fetch(file.url);
+    const response = await fetch(file.ufsUrl);
     const blob = await response.blob();
     const loader = new PDFLoader(blob);
     const pageLevelDocs = await loader.load();
