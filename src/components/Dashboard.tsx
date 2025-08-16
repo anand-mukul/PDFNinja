@@ -148,11 +148,13 @@ const Dashboard = ({ subscriptionPlan }: PageProps) => {
             ))}
         </div>
       ) : (
-        <EmptyState
-          title="No documents yet"
-          description="Get started by uploading your first PDF"
-          icon={<Ghost className="h-12 w-12 text-gray-400" />}
-        />
+        <div className="mt-8">
+          <EmptyState
+            title="No documents yet"
+            description="Get started by uploading your first PDF"
+            icon={<Ghost className="h-12 w-12 text-gray-400" />}
+          />
+        </div>
       )}
     </main>
   );
