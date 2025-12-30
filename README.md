@@ -57,7 +57,7 @@ Now, unleash your creativity and make the design uniquely yours!
 
 - **Kinde Auth**
 - **Planetscale**
-- **OpenAI**
+- **Gemini**
 - **UploadThings**
 - **Pinecone**
 - **Stripe**
